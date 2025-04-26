@@ -57,6 +57,7 @@ export interface ContractDetails {
 }
 
 export interface ContractFormData {
+  entity1: Entity;
   entity2: Entity;
   details: ContractDetails;
 }

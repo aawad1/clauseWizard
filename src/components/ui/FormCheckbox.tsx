@@ -9,6 +9,7 @@ interface FormCheckboxProps {
   error?: string;
   className?: string;
   helpText?: string;
+  name?: string;
 }
 
 const FormCheckbox: React.FC<FormCheckboxProps> = ({
