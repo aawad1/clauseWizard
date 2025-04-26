@@ -13,6 +13,16 @@ export enum EntityType {
   FIZICKO_LICE = 'fizicko_lice'
 }
 
+export interface AdminProfile {
+  naziv_firme: string;
+  oib_firme: string;
+  adresa_firme: string;
+  ime_prezime_zastupnika: string;
+  oib_zastupnika: string;
+  broj_ziro_racuna: string;
+  naziv_banke: string;
+}
+
 export interface Entity {
   type: EntityType;
   name: string;
@@ -20,11 +30,11 @@ export interface Entity {
   city: string;
   postalCode: string;
   country: string;
-  idNumber: string; // JIB/JMBG
-  vatNumber?: string; // PDV broj (opcionalno)
-  courtRegistry?: string; // Sudski registar (samo za pravna lica)
-  representativeName?: string; // Ime zastupnika (samo za pravna lica)
-  representativePosition?: string; // Pozicija zastupnika (samo za pravna lica)
+  idNumber: string;
+  vatNumber?: string;
+  courtRegistry?: string;
+  representativeName?: string;
+  representativePosition?: string;
   contactPhone: string;
   contactEmail: string;
 }
@@ -43,10 +53,10 @@ export interface ContractDetails {
   disputeResolution: string;
   terminationTerms: string;
   additionalClauses: string;
+  attachmentUrl?: string;
 }
 
 export interface ContractFormData {
-  entity1: Entity;
   entity2: Entity;
   details: ContractDetails;
 }
