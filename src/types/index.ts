@@ -20,11 +20,11 @@ export interface Entity {
   city: string;
   postalCode: string;
   country: string;
-  idNumber: string; // JIB/JMBG
-  vatNumber?: string; // PDV broj (opcionalno)
-  courtRegistry?: string; // Sudski registar (samo za pravna lica)
-  representativeName?: string; // Ime zastupnika (samo za pravna lica)
-  representativePosition?: string; // Pozicija zastupnika (samo za pravna lica)
+  idNumber: string;
+  vatNumber?: string;
+  courtRegistry?: string;
+  representativeName?: string;
+  representativePosition?: string;
   contactPhone: string;
   contactEmail: string;
 }
@@ -46,7 +46,7 @@ export interface ContractDetails {
 }
 
 export interface ContractFormData {
-  entity1: Entity;
+  entity1: Entity,
   entity2: Entity;
   details: ContractDetails;
 }

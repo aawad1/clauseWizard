@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useFormContext } from '../context/FormContext';
 import EntityForm from './forms/EntityForm';
 import ContractDetailsForm from './forms/ContractDetailsForm';
@@ -13,10 +12,13 @@ const steps = [
   { id: 'review', title: 'Pregled', description: 'Pregledajte informacije prije generisanja' },
 ];
 
-const ContractForm: React.FC = () => {
+interface ContractFormProps {
+  generateContract: () => void;
+}
+
+const ContractForm: React.FC<ContractFormProps> = ({ generateContract }) => {
   const { formData, currentStep, nextStep, prevStep } = useFormContext();
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
 
   const validateCurrentStep = () => {
     const currentStepId = steps[currentStep].id;
@@ -76,8 +78,7 @@ const ContractForm: React.FC = () => {
       if (currentStep < steps.length - 1) {
         nextStep();
       } else {
-        // Posljednji korak - generiranje ugovora
-        navigate('/preview');
+        generateContract();
       }
     }
   };

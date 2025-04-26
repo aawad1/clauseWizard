@@ -9,6 +9,7 @@ interface FormCheckboxProps {
   error?: string;
   className?: string;
   helpText?: string;
+  name?: string;
 }
 
 const FormCheckbox: React.FC<FormCheckboxProps> = ({
@@ -20,6 +21,7 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
   error,
   className = '',
   helpText,
+  name
 }) => {
   return (
     <div className={`mb-4 ${className}`}>
@@ -30,6 +32,7 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
           checked={checked}
           onChange={onChange}
           required={required}
+          name={name}
           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
         />
         <label htmlFor={id} className="ml-2 block text-sm text-gray-700">

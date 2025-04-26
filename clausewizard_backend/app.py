@@ -22,8 +22,42 @@ def ask_gemini():
     if not user_input:
         return jsonify({"error": "Missing 'text' field"}), 400
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+    search_results = search_contract_examples(user_input, top_k=3)
+
+    if not search_results:
+        return jsonify({"response": "Nema pronađenih ugovora."})
+
+    sources = [
+        {"title": c['title'], "similarity": round(c['similarity'], 4)}
+        for c in search_results
+    ]
+
+    return jsonify({
+        "response": "Pronađeni najbliži ugovori:",
+        "sources": sources
+    })
+
+@app.route('/generate_contract', methods=['POST'])
+def generate_contract():
+    user_input = request.json.get('contract_type')
+
+    if not user_input:
+        return jsonify({"error": "Missing 'contract_type' field"}), 400
+
+    generation_prompt = f"""Ti si AI pravni savjetnik. Napiši pun tekst primjera {user_input}.
     
+    Ugovor treba biti jasan, profesionalan, sa standardnim odredbama:
+    - Uvodne odredbe
+    - Predmet ugovora
+    - Prava i obaveze strana
+    - Trajanje i raskid ugovora
+    - Posebne odredbe
+    - Završne odredbe
+    
+    Koristi pravnu terminologiju kao da ga sastavlja pravnik."""
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+
     payload = {
         "contents": [{
             "parts": [{"text": user_input}]
@@ -35,7 +69,7 @@ def ask_gemini():
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    
+
     if response.status_code != 200:
         return jsonify({"error": "Gemini API failed", "details": response.json()}), 500
 
