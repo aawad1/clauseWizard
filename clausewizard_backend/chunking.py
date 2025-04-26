@@ -48,7 +48,7 @@ def save_chunks_to_txt(title, chunks, filename):
 
 # === 5. Run ===
 if __name__ == "__main__":
-    pdf_path = "sample_contract.pdf"
+    pdf_path = "pdfs/sample_contract.pdf"
     text = extract_text_from_pdf(pdf_path)
     clean_text = remove_headers(text)
     title, chunks = chunk_by_clan(clean_text)
