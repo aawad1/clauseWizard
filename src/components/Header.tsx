@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Scroll, FileText } from 'lucide-react';
+import { Scroll, FileText, UserCircle } from 'lucide-react';
 
 const Header: React.FC = () => {
   return (
@@ -24,18 +24,23 @@ const Header: React.FC = () => {
             <Link to="/create" className="text-gray-600 hover:text-blue-600 transition-colors">
               Kreiraj Ugovor
             </Link>
-            <Link to="#" className="text-gray-600 hover:text-blue-600 transition-colors">
-              O Nama
+            <Link to="/profile" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Profil Firme
             </Link>
           </nav>
           
-          <Link
-            to="/create"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl flex items-center space-x-2 transition-transform hover:scale-105"
-          >
-            <FileText className="h-5 w-5" />
-            <span>Novi Ugovor</span>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link to="/profile" className="text-gray-600 hover:text-blue-600 transition-colors">
+              <UserCircle className="h-6 w-6" />
+            </Link>
+            <Link
+              to="/create"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl flex items-center space-x-2 transition-transform hover:scale-105"
+            >
+              <FileText className="h-5 w-5" />
+              <span>Novi Ugovor</span>
+            </Link>
+          </div>
         </div>
       </div>
     </header>

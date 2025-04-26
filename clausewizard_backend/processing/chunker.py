@@ -1,7 +1,7 @@
 import re
 
 def chunk_by_clan(text):
-    matches = list(re.finditer(r'(Član\s+\d+\.*)', text))
+    matches = list(re.finditer(r'([ČC]lan(ak)?\s+\d+.?)', text))
     chunks = []
     title = ""
 
