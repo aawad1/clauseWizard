@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from '../context/FormContext';
 import EntityForm from './forms/EntityForm';
 import ContractDetailsForm from './forms/ContractDetailsForm';
 import FormSteps from './FormSteps';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ContractPreview from './ContractPreview';
-import { ArrowLeft, ArrowRight, Save, FileCheck, Upload } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, Check } from 'lucide-react';
+import { pdf } from '@react-pdf/renderer';
+import ContractPDF from './ContractPDF';
 
 const steps = [
   { id: 'entity2', title: 'Podaci o klijentu', description: 'Informacije o drugoj ugovornoj strani' },
   { id: 'details', title: 'Detalji ugovora', description: 'Predmet i uslovi ugovora' },
-  { id: 'review', title: 'Pregled', description: 'Pregledajte informacije prije generisanja' },
+  { id: 'review', title: 'Pregled', description: 'Pregledajte informacije prije preuzimanja' },
 ];
 
 interface ContractFormProps {
@@ -21,6 +25,21 @@ interface ContractFormProps {
 const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractText, isGenerating }) => {
   const { formData, currentStep, nextStep, prevStep } = useFormContext();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [contractBlob, setContractBlob] = useState<Blob | null>(null);
+
+  useEffect(() => {
+    const generateBlob = async () => {
+      if (contractText) {
+        const blob = await pdf(<ContractPDF contractText={contractText} />).toBlob();
+        setContractBlob(blob);
+        setDownloadSuccess(false); // Reset downloadSuccess kad se novi ugovor generiše
+      }
+    };
+
+    generateBlob();
+  }, [contractText]);
 
   const validateCurrentStep = () => {
     const currentStepId = steps[currentStep].id;
@@ -59,32 +78,70 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
     return isValid;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (validateCurrentStep()) {
+      const formDataToSave = {
+        admin: JSON.parse(localStorage.getItem('adminProfile') || '{}'),
+        entity2: {
+          ...formData.entity2,
+          tip_subjekta: formData.entity2.type || '',
+        },
+        details: formData.details,
+      };
+      localStorage.setItem('contractDraft', JSON.stringify(formDataToSave));
+
+      if (currentStep === 1) {
+        generateContract(); // Generiši novi ugovor
+      }
+
       if (currentStep < steps.length - 1) {
         nextStep();
-      } else {
-        generateContract();
       }
     }
   };
 
   const handlePrev = () => {
+    // Kada se ide nazad, resetuj stanje dugmeta
+    setDownloadSuccess(false);
+    setContractBlob(null);
     prevStep();
   };
 
-  const handleSaveDraft = () => {
-    localStorage.setItem('contractDraft', JSON.stringify(formData));
-    alert('Nacrt ugovora je uspješno sačuvan!');
-  };
+  const handleDownload = async () => {
+    if (!contractBlob) return;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      console.log('File selected:', file.name);
-      alert('Dokument je uspješno priložen!');
+    setIsDownloading(true);
+
+    try {
+      const formDataLocal = JSON.parse(localStorage.getItem('contractDraft') || '{}');
+      const adminProfile = JSON.parse(localStorage.getItem('adminProfile') || '{}');
+
+      const title = (formDataLocal?.details?.title || 'ugovor').replace(/\s+/g, '_');
+      const firstParty = (adminProfile?.naziv_firme || 'admin').replace(/\s+/g, '_');
+      const secondParty = (formDataLocal?.entity2?.name || 'klijent').replace(/\s+/g, '_');
+
+      const filename = `${title}_${firstParty}_${secondParty}.pdf`;
+
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(contractBlob);
+      downloadLink.download = filename;
+      downloadLink.click();
+
+      toast.success('Ugovor je uspješno preuzet!', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+
+      setDownloadSuccess(true);
+    } catch (error) {
+      toast.error('Došlo je do greške pri preuzimanju ugovora.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -93,45 +150,13 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
       case 'entity2':
         return <EntityForm entityNumber={2} errors={errors} />;
       case 'details':
-        return (
-            <div className="space-y-6">
-              <ContractDetailsForm errors={errors} />
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priložite ponudu ili dodatnu dokumentaciju
-                </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors">
-                  <div className="space-y-1 text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                        <span>Učitajte fajl</span>
-                        <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            className="sr-only"
-                            accept=".pdf,.doc,.docx,.txt"
-                            onChange={handleFileUpload}
-                        />
-                      </label>
-                      <p className="pl-1">ili prevucite ovdje</p>
-                    </div>
-                    <p className="text-xs text-gray-500">PDF, Word ili TXT do 10MB</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-        );
+        return <ContractDetailsForm errors={errors} />;
       case 'review':
         return (
             <>
               {isGenerating ? (
                   <div className="flex flex-col items-center justify-center mt-8">
-                    <svg className="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                    </svg>
+                    <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full mb-4" />
                     <p className="text-blue-600 font-semibold text-lg">Ugovor se trenutno generiše...</p>
                   </div>
               ) : contractText ? (
@@ -150,6 +175,7 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <FormSteps steps={steps} currentStep={currentStep} />
         <div className="p-6">
+          <ToastContainer />
           {renderStepContent()}
 
           <div className="mt-8 flex justify-between">
@@ -165,37 +191,41 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
               )}
             </div>
 
-            {/* Dugmad desno */}
             <div className="flex space-x-3">
-              {currentStep < steps.length - 1 && (
-                  <button
-                      onClick={handleSaveDraft}
-                      className="flex items-center px-4 py-2 border border-blue-700 text-blue-700 rounded-md hover:bg-blue-50 transition-colors"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Sačuvaj nacrt
-                  </button>
-              )}
-              {currentStep < steps.length - 1 || (currentStep === steps.length - 1 && !contractText) ? (
+              {currentStep < steps.length - 1 ? (
                   <button
                       onClick={handleNext}
                       className="flex items-center px-6 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition-colors"
                   >
-                    {currentStep < steps.length - 1 ? (
+                    Dalje
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </button>
+              ) : (contractText && contractBlob && !isGenerating) ? ( // <-- dodana provjera
+                  <button
+                      onClick={handleDownload}
+                      disabled={isDownloading}
+                      className={`flex items-center justify-center px-6 py-2 rounded-md text-white transition-all duration-300 ${
+                          downloadSuccess
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-green-700 hover:bg-green-800'
+                      }`}
+                  >
+                    {isDownloading ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : downloadSuccess ? (
                         <>
-                          Dalje
-                          <ArrowRight className="h-4 w-4 ml-2" />
+                          <Check className="h-5 w-5 mr-2" />
+                          Preuzeto
                         </>
                     ) : (
                         <>
-                          Generiši ugovor
-                          <FileCheck className="h-4 w-4 ml-2" />
+                          Preuzmi ugovor
+                          <Download className="h-4 w-4 ml-2" />
                         </>
                     )}
                   </button>
               ) : null}
             </div>
-
           </div>
         </div>
       </div>
