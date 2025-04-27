@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.model_search_service import get_best_matching_contract
 from services.generate_contract_service import build_and_send_prompt
-from services.text_formatter import format_contract_text  # SAMO ovo ti treba
+from services.text_formatter import format_contract_text
 
 generate_bp = Blueprint('generate', __name__)
 
