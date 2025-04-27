@@ -61,6 +61,12 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
 
   const handleNext = () => {
     if (validateCurrentStep()) {
+      const formDataToSave = {
+        admin: JSON.parse(localStorage.getItem('adminProfile') || '{}'),
+        ...formData
+      };
+      localStorage.setItem('contractDraft', JSON.stringify(formDataToSave));
+
       if (currentStep < steps.length - 1) {
         nextStep();
       } else {

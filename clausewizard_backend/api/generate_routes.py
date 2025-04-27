@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.model_search_service import get_best_matching_contract
 from services.generate_contract_service import build_and_send_prompt
-from services.text_formatter import format_contract_text  # OVO DODAJ
+from services.text_formatter import format_contract_text  # SAMO ovo ti treba
 
 generate_bp = Blueprint('generate', __name__)
 
@@ -31,7 +31,6 @@ def generate_contract():
     if isinstance(generated_contract, dict) and "error" in generated_contract:
         return jsonify(generated_contract), 500
 
-    # ✨ OVDJE FORMATIRAMO TEKST PRIJE SLAJA
     formatted_contract = format_contract_text(generated_contract)
 
     return jsonify({
