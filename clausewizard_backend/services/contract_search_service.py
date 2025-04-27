@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+model = SentenceTransformer('nlpaueb/legal-bert-base-uncased')
 
 def search_contract_examples(user_query, top_k=5):
     query_embedding = model.encode([user_query])[0]

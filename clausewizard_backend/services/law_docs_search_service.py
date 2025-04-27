@@ -6,11 +6,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+model = SentenceTransformer('nlpaueb/legal-bert-base-uncased')
 
-def search_law_clauses(user_query, top_k=5):
+def search_law_clauses(user_query, min_similarity=0.7, fallback_top_k=5):
     """
-    Pretražuje zakonite članke (clauses) iz baze podataka i vraća top_k najbližih.
+    Pretražuje zakonite članke iz baze podataka:
+    - Vraća sve sa similarity > min_similarity
+    - Ako ih nema bar 5, vraća top fallback_top_k najboljih
     """
     query_embedding = model.encode([user_query])[0]
 
@@ -30,44 +32,18 @@ def search_law_clauses(user_query, top_k=5):
             documents ON clauses.document_id = documents.id
         ORDER BY
             similarity DESC
-        LIMIT %s;
-    """, (list(query_embedding), top_k))
+        LIMIT 20;
+    """, (list(query_embedding),))
 
     results = cur.fetchall()
     cur.close()
     conn.close()
 
-    return results
+    # Filtriraj sve koji imaju similarity >= min_similarity
+    filtered_results = [r for r in results if r['similarity'] >= min_similarity]
 
-def format_law_clauses(clauses: list) -> str:
-    """
-    Formatira listu najbližih law clauses u čitljiv tekst za prompt.
-    """
-    if not clauses:
-        return "Nema pronađenih relevantnih zakona."
-
-    formatted_clauses = []
-
-    for idx, clause in enumerate(clauses, start=1):
-        formatted_text = (
-            f"Član {idx} iz dokumenta '{clause['document_title']}':\n"
-            f"{clause['clause_text']}\n"
-        )
-        formatted_clauses.append(formatted_text)
-
-    return "\n".join(formatted_clauses)
-
-if __name__ == "__main__":
-    query = "građenje na tuđem zemljištu"
-
-    print("\n🔍 Tražim najrelevantnije zakone...\n")
-
-    top_clauses = search_law_clauses(query)
-
-    if not top_clauses:
-        print("❗ Nije pronađeno ništa relevantno.")
-
+    # Ako nema dovoljno (manje od 5), uzmi top 5 najboljih
+    if len(filtered_results) < fallback_top_k:
+        return results[:fallback_top_k]
     else:
-        formatted_text = format_law_clauses(top_clauses)
-        print("\n📜 Relevantni članci:\n")
-        print(formatted_text)
+        return filtered_results
