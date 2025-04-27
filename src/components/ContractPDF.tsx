@@ -143,12 +143,12 @@ const ContractPDF: React.FC<ContractPDFProps> = ({ contractText }) => {
                         <View style={styles.signatureBlock}>
                             <Text>{signatures[0]}</Text>
                             <View style={styles.signatureLine} />
-                            <Text style={styles.sealPlaceholder}>M.P.</Text>
+                            <Text style={styles.sealPlaceholder}>Potpis</Text>
                         </View>
                         <View style={styles.signatureBlock}>
                             <Text>{signatures[1]}</Text>
                             <View style={styles.signatureLine} />
-                            <Text style={styles.sealPlaceholder}>M.P.</Text>
+                            <Text style={styles.sealPlaceholder}>Potpis</Text>
                         </View>
                     </View>
                 )}
