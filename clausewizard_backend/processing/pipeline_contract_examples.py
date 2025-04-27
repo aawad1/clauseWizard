@@ -15,7 +15,8 @@ def process_single_contract_example(path):
         print(f"No text found in {path}. Skipping.")
         return
 
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    model = SentenceTransformer('nlpaueb/legal-bert-base-uncased')
+
     embedding = model.encode([clean_text])[0]  # samo jedan embedding za cijeli tekst
 
     title = os.path.basename(path).replace('.pdf', '').replace('_', ' ').strip()
