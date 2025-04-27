@@ -63,7 +63,11 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
     if (validateCurrentStep()) {
       const formDataToSave = {
         admin: JSON.parse(localStorage.getItem('adminProfile') || '{}'),
-        ...formData
+        entity2: {
+          ...formData.entity2,
+          tip_subjekta: formData.entity2.type || '',
+        },
+        details: formData.details,
       };
       localStorage.setItem('contractDraft', JSON.stringify(formDataToSave));
 

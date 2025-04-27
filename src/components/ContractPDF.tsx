@@ -3,6 +3,7 @@ import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/rendere
 import OpenSansRegular from '../../public/fonts/open-sans.regular.ttf';
 import OpenSansBold from '../../public/fonts/open-sans.bold.ttf';
 
+// Registracija fonta
 Font.register({
     family: 'Open Sans',
     fonts: [
@@ -35,7 +36,9 @@ const styles = StyleSheet.create({
     },
     paragraph: {
         marginBottom: 8,
-        textAlign: 'justify',
+        textAlign: 'center',
+        fontWeight: 'normal', // Reset na normal
+        fontFamily: 'Open Sans',
     },
     clanTitle: {
         marginTop: 12,
@@ -57,29 +60,15 @@ const styles = StyleSheet.create({
         width: '80%',
     },
     sealPlaceholder: {
-        marginTop: 10,
+        marginTop: 5,
         fontSize: 10,
         color: 'gray',
-    },
-    partyInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    partyBlock: {
-        width: '45%',
-    },
-    boldText: {
-        fontWeight: 'bold',
-    },
-    dateBottomRight: {
-        textAlign: 'right',
-        marginTop: 40,
-        fontSize: 11,
+        textAlign: 'center',
     },
     bulletItem: {
         flexDirection: 'row',
         marginBottom: 4,
+        justifyContent: 'center',
     },
     bulletPoint: {
         width: 10,
@@ -93,19 +82,9 @@ const styles = StyleSheet.create({
 
 interface ContractPDFProps {
     contractText: string;
-    adminInfo: {
-        name: string;
-        idNumber: string;
-        entityType: 'pravno_lice' | 'fizicko_lice';
-    };
-    clientInfo: {
-        name: string;
-        idNumber: string;
-        entityType: 'pravno_lice' | 'fizicko_lice';
-    };
 }
 
-const ContractPDF: React.FC<ContractPDFProps> = ({ contractText, adminInfo, clientInfo }) => {
+const ContractPDF: React.FC<ContractPDFProps> = ({ contractText }) => {
     const cleanText = (text: string) => {
         let cleaned = text;
         if (cleaned.startsWith('Priprema:')) {
@@ -118,11 +97,13 @@ const ContractPDF: React.FC<ContractPDFProps> = ({ contractText, adminInfo, clie
         const paragraphs = cleanText(text).split(/\n{2,}/g);
 
         let content: any[] = [];
+        let signatures: string[] = [];
+
         paragraphs.forEach((para, idx) => {
             const trimmed = para.trim();
 
             if (trimmed.startsWith('Za prvu ugovornu stranu') || trimmed.startsWith('Za drugu ugovornu stranu')) {
-                // preskoči
+                signatures.push(trimmed);
             } else if (/^UGOVOR O .+/i.test(trimmed)) {
                 content.push(<Text key={idx} style={styles.centeredTitle}>{trimmed}</Text>);
             } else if (/^[A-ZČĆŽŠĐ\s]+$/i.test(trimmed) && trimmed.length > 5) {
@@ -133,60 +114,44 @@ const ContractPDF: React.FC<ContractPDFProps> = ({ contractText, adminInfo, clie
                 content.push(
                     <View key={idx} style={styles.bulletItem}>
                         <Text style={styles.bulletPoint}>•</Text>
-                        <Text style={styles.bulletText}>{trimmed.substring(1).trim()}</Text>
+                        <Text style={styles.paragraph}>{trimmed.substring(1).trim()}</Text>
                     </View>
                 );
-            } else {
-                content.push(<Text key={idx} style={styles.paragraph}>{trimmed}</Text>);
+            } else if (trimmed.length > 0) {
+                content.push(
+                    <Text key={idx} style={styles.paragraph}>
+                        {trimmed}
+                    </Text>
+                );
             }
         });
 
-        return content;
+
+        return { content, signatures };
     };
 
-    const adminIdLabel = adminInfo.entityType === 'pravno_lice' ? 'OIB' : 'JMBG';
-    const clientIdLabel = clientInfo.entityType === 'pravno_lice' ? 'OIB' : 'JMBG';
-
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}.`;
-
-    const paragraphs = formatParagraphs(contractText);
+    const { content, signatures } = formatParagraphs(contractText);
 
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                {/* Uvodne strane */}
-                <View style={styles.partyInfo}>
-                    <View style={styles.partyBlock}>
-                        <Text style={styles.boldText}>{adminInfo.name}</Text>
-                        <Text style={styles.boldText}>{adminIdLabel}: {adminInfo.idNumber}</Text>
-                    </View>
-                    <View style={styles.partyBlock}>
-                        <Text style={styles.boldText}>{clientInfo.name}</Text>
-                        <Text style={styles.boldText}>{clientIdLabel}: {clientInfo.idNumber}</Text>
-                    </View>
-                </View>
-
-                {paragraphs}
-
-                {/* Datum dolje desno */}
-                <Text style={styles.dateBottomRight}>
-                    Datum: {formattedDate}
-                </Text>
+                {content}
 
                 {/* Sekcija potpisa */}
-                <View style={styles.signatureSection}>
-                    <View style={styles.signatureBlock}>
-                        <Text>Za prvu ugovornu stranu:</Text>
-                        <View style={styles.signatureLine} />
-                        <Text style={styles.sealPlaceholder}>Pečat i potpis</Text>
+                {signatures.length >= 2 && (
+                    <View style={styles.signatureSection}>
+                        <View style={styles.signatureBlock}>
+                            <Text>{signatures[0]}</Text>
+                            <View style={styles.signatureLine} />
+                            <Text style={styles.sealPlaceholder}>M.P.</Text>
+                        </View>
+                        <View style={styles.signatureBlock}>
+                            <Text>{signatures[1]}</Text>
+                            <View style={styles.signatureLine} />
+                            <Text style={styles.sealPlaceholder}>M.P.</Text>
+                        </View>
                     </View>
-                    <View style={styles.signatureBlock}>
-                        <Text>Za drugu ugovornu stranu:</Text>
-                        <View style={styles.signatureLine} />
-                        <Text style={styles.sealPlaceholder}>Pečat i potpis</Text>
-                    </View>
-                </View>
+                )}
             </Page>
         </Document>
     );

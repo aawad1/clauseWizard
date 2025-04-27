@@ -32,31 +32,36 @@ def build_and_send_prompt(admin_input, client_input, contract_details, model_con
     
     PODACI O KLIJENTU:
     {client_text}
-    
     DETALJI PROJEKTA:
     {contract_details_text}
     
+    Specijalna uputa:
+    - Ako u polju PODACI O KLIJENTU postoji "tip_subjekta: fizicko_lice", obavezno koristi izraz "JMBG" u ugovoru kad spominješ identifikacioni broj klijenta.
+    - Ako u polju PODACI O KLIJENTU postoji "tip_subjekta: pravno_lice", obavezno koristi izraz "OIB" u ugovoru kad spominješ identifikacioni broj klijenta.
+    - Ne koristi oba termina istovremeno. Samo jedan, na osnovu tip_subjekta.
     Upute:
-    - Pridržavaj se strukture:
-      1. UVODNE ODREDBE
-      2. PREDMET UGOVORA
-      3. PRAVA I OBAVEZE STRANA
-      4. TRAJANJE I RASKID UGOVORA
-      5. POSEBNE ODREDBE
-      6. ZAVRŠNE ODREDBE
-    - Koristi formalan, pravni jezik.
-    - Svaki članak da bude ispisan kao: **Član 1.**, **Član 2.**, **Član 3.** itd. bez pod-članaka tipa 1.1 ili 1.2.
-    - U strukturi izostavi brojeve (Ne treba doslovno da pise 1. UVODNE ODREDBE ... nego samo UVODNE ODREDBE).
-    - Održavaj jasnoću, preciznost i profesionalnost.
-    - NE dodaj suvišne informacije koje nisu relevantne za ugovor.
-    - NE spominji druge institucije (npr. ministarstva, UNDP).
-    - **Na kraju ugovora obavezno pripremi posebno odvojene sekcije za potpis:**
-      - Lijeva strana: "Za prvu ugovornu stranu: [naziv firme Admin]"
-      - Desna strana: "Za drugu ugovornu stranu: [naziv firme Klijent]"
-      - Napiši linije za potpise (________________________).
+    - Ne smiješ dodavati tekstove poput "Priprema", "Legalist", "Napomena", niti bilo kakve druge bilješke van samog ugovora.
+    - Početak ugovora mora sadržavati lokaciju i datum sklapanja (npr. "U Sarajevu, dana 27.04.2025. godine.").
+    - Struktura ugovora mora biti:
+      - UVODNE ODREDBE
+      - PREDMET UGOVORA
+      - PRAVA I OBAVEZE STRANA
+      - TRAJANJE I RASKID UGOVORA
+      - POSEBNE ODREDBE
+      - ZAVRŠNE ODREDBE
+    - Ne koristi numeraciju ispred sekcija (samo naziv sekcije).
+    - Članove označavaj kao "Član 1.", "Član 2.", "Član 3.", bez podčlanova (nema 1.1, 1.2).
+    - Ako je ugovorna strana fizičko lice, koristi JMBG; ako je pravno lice, koristi OIB.
+    - Na kraju UGOVORA stavi sekciju potpisa ovako:
+        - Lijeva strana: "Za prvu ugovornu stranu: [naziv firme, novi red]"
+        - Desna strana: "Za drugu ugovornu stranu: [naziv firme (SAMO UKOLIKO JE TIP SUBJEKTA PRAVNO LICE), novi red"
+        - Ispod ne moras dodavati liniju za potpis, biti ce naknadno dodata
+        - 
+    - Ne dupliraj sekciju potpisa!
+    - Ne koristi boldiranje niti oznake.
+    - Piši jasno, precizno i profesionalnim pravnim jezikom.
     
-    
-    Tvoj izlaz treba biti čist i spreman za formatiranje u PDF-u jer se koristi kasnije u te svrhe.
-    Počni pisanjem punog teksta ugovora.
+    Tvoj izlaz mora biti čist, bez dodatnih oznaka i odmah spreman za formatiranje u PDF.
+    Počni pisanjem punog teksta ugovora odmah.
     """
     return send_prompt_to_gemini(generation_prompt)

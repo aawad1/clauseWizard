@@ -23,6 +23,7 @@ const ContractFormPage: React.FC = () => {
                 },
                 client_input: {
                     naziv_firme: formData?.entity2?.name || '',
+                    tip_subjekta: formData?.entity2.tip_subjekta,
                     oib_firme: formData?.entity2?.idNumber || '',
                     adresa_firme: `${formData?.entity2?.address}, ${formData?.entity2?.city}` || '',
                     ime_prezime_zastupnika: formData?.entity2?.representativeName || '',
