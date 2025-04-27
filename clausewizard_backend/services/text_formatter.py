@@ -1,6 +1,5 @@
 import re
 
-
 def format_contract_text(raw_text: str) -> str:
     """
     Formatira tekst ugovora:
@@ -13,7 +12,7 @@ def format_contract_text(raw_text: str) -> str:
     if not raw_text:
         return ""
 
-    text = str(raw_text)
+    text = raw_text
 
     # 1. Ukloni nepotrebne karaktere
     text = text.replace("\\n", "\n")
@@ -43,3 +42,8 @@ def format_contract_text(raw_text: str) -> str:
     text = text.strip()
 
     return text
+
+if __name__ == "__main__":
+    test_text = "hello\n\n\n\n\nworld\n\nUVODNE ODREDBE\n\nČlan 1.\n\nPružalac usluga:\n\nKorisnik usluga:"
+    formatted_text = format_contract_text(test_text)
+    print(formatted_text)
