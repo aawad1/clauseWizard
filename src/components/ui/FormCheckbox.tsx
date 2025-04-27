@@ -28,6 +28,7 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
         <input
           id={id}
           type="checkbox"
+          autoComplete="off"
           checked={checked}
           onChange={onChange}
           required={required}
