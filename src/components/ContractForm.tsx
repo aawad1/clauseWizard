@@ -107,6 +107,41 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
     prevStep();
   };
 
+  const saveContractToBackend = async (title: string, pdfBlob: Blob) => {
+    try {
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+
+        const response = await fetch('http://localhost:5000/save_contract', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+            pdf_base64: base64,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("✅ Contract saved! ID:", data.contract_id);
+        } else {
+          console.error("❗ Error saving contract:", data.error);
+        }
+      };
+
+      reader.readAsDataURL(pdfBlob);
+
+    } catch (error) {
+      console.error("❗ Error preparing contract for save:", error);
+    }
+  };
+
+
   const handleDownload = async () => {
     if (!contractBlob) return;
 
@@ -121,6 +156,8 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
       const secondParty = (formDataLocal?.entity2?.name || 'klijent').replace(/\s+/g, '_');
 
       const filename = `${title}_${firstParty}_${secondParty}.pdf`;
+
+      await saveContractToBackend(title, contractBlob);
 
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(contractBlob);
