@@ -39,6 +39,7 @@ const FormInput: React.FC<FormInputProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        autoComplete="off"
         required={required}
         name={name}
         className={`w-full px-3 py-2 border ${

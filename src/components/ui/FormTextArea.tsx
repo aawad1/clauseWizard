@@ -40,6 +40,7 @@ const FormTextArea: React.FC<FormTextAreaProps> = ({
         placeholder={placeholder}
         required={required}
         rows={rows}
+        autoComplete="off"
         name={name}
         className={`w-full px-3 py-2 border ${
           error ? 'border-red-500' : 'border-gray-300'
