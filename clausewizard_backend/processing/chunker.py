@@ -7,6 +7,8 @@ def chunk_by_clan(text):
 
     if matches:
         title = text[:matches[0].start()].strip()
+        # Remove any http(s) links from the title
+        title = re.sub(r'http[s]?://\S+', '', title).strip()
 
         for idx, match in enumerate(matches):
             start = match.start()
@@ -17,5 +19,6 @@ def chunk_by_clan(text):
                 chunks.append(chunk_text)
     else:
         title = text.strip()
+        title = re.sub(r'http[s]?://\S+', '', title).strip()
 
     return title, chunks
