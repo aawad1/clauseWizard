@@ -60,7 +60,7 @@ const PreviewPageContent: React.FC = () => {
         </div>
         
         <div className="p-6 bg-white max-h-[800px] overflow-y-auto">
-          <ContractPreview />
+          <ContractPreview contractText={''} />
         </div>
       </div>
       

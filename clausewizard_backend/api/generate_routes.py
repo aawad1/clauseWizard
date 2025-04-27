@@ -30,7 +30,7 @@ def generate_contract():
 
     if isinstance(generated_contract, dict) and "error" in generated_contract:
         return jsonify(generated_contract), 500
-    # OVDJE FORMATIRAMO TEKST PRIJE SLAJA
+
     formatted_contract = format_contract_text(generated_contract)
 
     return jsonify({
