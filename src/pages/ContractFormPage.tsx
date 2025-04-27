@@ -49,7 +49,6 @@ const ContractFormPage: React.FC = () => {
                     datum: formData?.details?.date || '',
                 }
             };
-            console.log(payload)
             const response = await fetch('http://127.0.0.1:5000/generate_contract', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
