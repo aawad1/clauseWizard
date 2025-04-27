@@ -35,7 +35,6 @@ def format_contract_text(raw_text: str) -> str:
     text = re.sub(r"(Pružalac usluga:)", r"\n\n\1", text)
     text = re.sub(r"(Korisnik usluga:)", r"\n\n\1", text)
 
-    # 5. Zamijeni 3+ praznih linija sa samo 2
     text = re.sub(r"(\n\s*){3,}", "\n\n", text)
 
     # 6. Trim krajnji višak praznih linija

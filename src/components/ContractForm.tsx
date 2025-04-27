@@ -128,16 +128,16 @@ const ContractForm: React.FC<ContractFormProps> = ({ generateContract, contractT
         const data = await response.json();
 
         if (response.ok) {
-          console.log("✅ Contract saved! ID:", data.contract_id);
+          console.log("Contract saved! ID:", data.contract_id);
         } else {
-          console.error("❗ Error saving contract:", data.error);
+          console.error("Error saving contract:", data.error);
         }
       };
 
       reader.readAsDataURL(pdfBlob);
 
     } catch (error) {
-      console.error("❗ Error preparing contract for save:", error);
+      console.error("Error preparing contract for save:", error);
     }
   };
 

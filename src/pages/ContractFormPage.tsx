@@ -77,7 +77,7 @@ const ContractFormPage: React.FC = () => {
                 <ContractForm
                     generateContract={generateContract}
                     contractText={contractText}
-                    isGenerating={isGenerating} // ➡️ ovdje proslijediš
+                    isGenerating={isGenerating}
                 />
             </FormProvider>
         </div>
