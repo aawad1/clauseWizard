@@ -12,16 +12,6 @@ const AssistantPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // const scrollToBottom = () => {
-    //     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    // };
-    //
-    // useEffect(() => {
-    //     if (messages.length > 0) {
-    //         scrollToBottom();
-    //     }
-    // }, [messages]);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
